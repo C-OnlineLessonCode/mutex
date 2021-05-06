@@ -1,0 +1,35 @@
+#include <iostream>
+#include <windows.h>
+
+HANDLE g_mutex = INVALID_HANDLE_VALUE;
+std::string g_workerName;
+DWORD WINAPI ThreadMain1(LPVOID threadParameter) {    
+    WaitForSingleObject(g_mutex, INFINITE);
+    std::cout << g_workerName << std::endl;
+    return 0;
+}
+
+/*
+- shared resource
+- race condition
+- deadlock
+- livelock
+*/
+
+int main()
+{
+    g_mutex = CreateMutexA(0, TRUE, 0);
+    DWORD threadId = 0; // TID
+    HANDLE thread1 = CreateThread(
+        0,
+        0,
+        ThreadMain1,
+        0,
+        0,
+        &threadId
+    );
+    std::cin >> g_workerName;
+    ReleaseMutex(g_mutex);
+    DWORD res = WaitForSingleObject(thread1, INFINITE);
+    CloseHandle(thread1);
+}
